@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 import LimeRevealText from '@/components/LimeRevealText'
 import PhotoCluster from '@/components/PhotoCluster'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'

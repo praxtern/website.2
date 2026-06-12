@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router'
+import { Route, Routes } from 'react-router-dom'
 import { Suspense, useState, lazy } from 'react'
 import PageTransitionOverlay from '@/components/PageTransitionOverlay'
 
