@@ -19,6 +19,7 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
   const heroRef = useRef<HTMLDivElement>(null)
   const [viewportHeight, setViewportHeight] = useState(800)
   const shouldReduceMotion = useReducedMotion()
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
@@ -41,9 +42,9 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
   const japanFillOpacity = useTransform(scrollYProgress, [0, 0.4], [0, 0.55])
   const japanTextColor = useMotionTemplate`rgba(250, 250, 250, ${japanFillOpacity})`
 
-  const parallaxMountainY = shouldReduceMotion ? 0 : mountainY
-  const parallaxJapanY = shouldReduceMotion ? 0 : japanY
-  const parallaxPolaroidX = shouldReduceMotion ? 0 : polaroidX
+  const parallaxMountainY = (shouldReduceMotion || isMobile) ? 0 : mountainY
+  const parallaxJapanY = (shouldReduceMotion || isMobile) ? 0 : japanY
+  const parallaxPolaroidX = (shouldReduceMotion || isMobile) ? 0 : polaroidX
 
   const scrollToContacts = () => {
     if (lenisRef.current) {

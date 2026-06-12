@@ -155,7 +155,7 @@
   }
 
   .form-input-underline:focus {
-    border-bottom-color: var(--sakura-accent);
+    border-bottom-color: #D4F87A;
   }
 }
 
