@@ -31,7 +31,9 @@ export default function LimeRevealText({ children }: LimeRevealTextProps) {
       ref={ref}
       className="text-sakura-pink transition-opacity duration-1000 ease-out"
       style={{
-        opacity: visible ? 1 : 0.2,
+        opacity: visible ? 1 : 0.35,
+        transitionProperty: 'opacity, transform',
+        transform: visible ? 'none' : 'translateY(5px)',
       }}
     >
       {children}

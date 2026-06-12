@@ -39,8 +39,10 @@ export function useMousePosition(lerp = 0.15) {
     let prevIsHovering = false
     let frameId = 0
 
-    // Set initial mobile state
-    setState({ isMobile, isReady: false })
+    // Set initial mobile state via a timeout to avoid synchronous state update in effect
+    requestAnimationFrame(() => {
+      setState({ isMobile, isReady: false })
+    })
 
     const updateHoverState = (event: MouseEvent) => {
       const element = event.target instanceof Element ? event.target : null

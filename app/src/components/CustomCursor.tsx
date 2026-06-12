@@ -1,7 +1,8 @@
 import { useMousePosition } from '@/hooks/useMousePosition'
 
 export default function CustomCursor() {
-  const { isMobile, isReady, setCursorRef } = useMousePosition(0.15)
+  // Increase lerp slightly for snappier cursor following while keeping smoothing
+  const { isMobile, isReady, setCursorRef } = useMousePosition(0.28)
 
   if (isMobile) {
     return null
@@ -12,7 +13,7 @@ export default function CustomCursor() {
       ref={setCursorRef}
       aria-hidden="true"
       data-custom-cursor
-      className="pointer-events-none fixed left-0 top-0 z-[9999] rounded-full mix-blend-difference transition-[width,height,border,background-color,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+      className="pointer-events-none fixed left-0 top-0 z-[9999] rounded-full mix-blend-difference transition-[width,height,border,background-color,opacity] duration-120 ease-[cubic-bezier(0.16,1,0.3,1)]"
       style={{
         width: 8,
         height: 8,

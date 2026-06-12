@@ -1,7 +1,8 @@
 import { useRef } from 'react'
-import { motion, useInView, useReducedMotion } from 'framer-motion'
+import { Link } from 'react-router'
 import LimeRevealText from '@/components/LimeRevealText'
 import PhotoCluster from '@/components/PhotoCluster'
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 
 const timelineData = [
   {
@@ -24,7 +25,7 @@ const timelineData = [
   },
 ]
 
-export default function AboutSection() {
+export default function AboutSection({ onNavigateItinerary }: { onNavigateItinerary?: () => void }) {
   const sectionRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -69,6 +70,7 @@ export default function AboutSection() {
                 key={item.city}
                 item={item}
                 index={i}
+                onNavigateItinerary={onNavigateItinerary}
               />
             ))}
           </div>
@@ -81,42 +83,47 @@ export default function AboutSection() {
 interface TimelineNodeProps {
   item: (typeof timelineData)[number]
   index: number
+  onNavigateItinerary?: () => void
 }
 
-function TimelineNode({ item, index }: TimelineNodeProps) {
-  const nodeRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(nodeRef, { amount: 0.3, once: true })
-  const shouldReduceMotion = useReducedMotion()
+function TimelineNode({ item, index, onNavigateItinerary }: TimelineNodeProps) {
+  const [ref, isInView] = useIntersectionObserver<HTMLDivElement>({
+    threshold: 0.3,
+    rootMargin: '0px',
+  })
 
   return (
-    <motion.div
-      ref={nodeRef}
-      className="relative flex items-start gap-6"
+    <div
+      ref={ref}
+      className="relative flex items-start gap-6 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
       data-timeline-city={item.city}
-      initial={shouldReduceMotion ? false : { opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : undefined}
-      transition={{
-        duration: shouldReduceMotion ? 0 : 0.8,
-        ease: [0.16, 1, 0.3, 1],
-        delay: shouldReduceMotion ? 0 : index * 0.2,
+      style={{
+        opacity: isInView ? 1 : 0,
+        transform: isInView ? 'translateY(0)' : 'translateY(40px)',
+        transitionDelay: `${index * 150}ms`,
+        willChange: 'transform, opacity',
       }}
-      style={{ willChange: shouldReduceMotion ? 'auto' : 'transform, opacity' }}
     >
       {/* Dot on the line */}
       <div className="absolute left-1/2 top-2 z-10 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-sakura-pink shadow-[0_0_12px_rgba(255,183,197,0.3)]" />
 
-      {/* Content - positioned alternating or consistently */}
-      <div className="ml-8 flex flex-col gap-3 md:ml-12">
-        <div>
+      <Link
+        to="/itinerary"
+        onClick={onNavigateItinerary}
+        className="group/city flex flex-1 items-start gap-6 transition-colors duration-300"
+        data-cursor-expand
+      >
+        <div className="ml-8 flex flex-col gap-3 md:ml-12">
           <span className="block font-sans text-[11px] font-medium uppercase tracking-[0.1em] text-mouse-gray">
             {item.days}
           </span>
-          <span className="font-display text-[28px] leading-tight text-kimono-white">
+          <span className="font-display text-[28px] leading-tight text-kimono-white transition-colors duration-300 group-hover/city:text-sakura-pink">
             {item.city}
           </span>
         </div>
+
         <PhotoCluster images={item.images} alt={item.alt} />
-      </div>
-    </motion.div>
+      </Link>
+    </div>
   )
 }

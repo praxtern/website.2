@@ -10,14 +10,30 @@ interface NavigationProps {
 export default function Navigation({ lenisRef }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false)
   const navRef = useRef<HTMLElement>(null)
+  const scrollFrame = useRef<number | null>(null)
+  const scrolledRef = useRef(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > window.innerHeight * 0.8)
+      if (scrollFrame.current !== null) return
+
+      scrollFrame.current = requestAnimationFrame(() => {
+        const nextScrolled = window.scrollY > window.innerHeight * 0.8
+        if (nextScrolled !== scrolledRef.current) {
+          scrolledRef.current = nextScrolled
+          setScrolled(nextScrolled)
+        }
+        scrollFrame.current = null
+      })
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      if (scrollFrame.current !== null) {
+        cancelAnimationFrame(scrollFrame.current)
+      }
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   const scrollTo = (id: string) => {

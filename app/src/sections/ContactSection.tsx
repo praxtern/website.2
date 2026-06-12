@@ -13,6 +13,8 @@ export default function ContactSection() {
           alt="Cherry blossoms framing Mount Fuji and a red pagoda at sunrise"
           className="h-full w-full object-cover"
           loading="lazy"
+          decoding="async"
+          fetchPriority="low"
         />
         {/* Gradient overlay for left-side legibility */}
         <div

@@ -35,7 +35,6 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
 
   const mountainY = useTransform(scrollYProgress, [0, 1], [0, -viewportHeight * 0.3])
   const japanY = useTransform(scrollYProgress, [0, 1], [0, -viewportHeight * 0.5])
-  const polaroidX = useTransform(scrollYProgress, [0, 1], [0, -viewportHeight * 0.4])
 
   // Solidifying effect: text fill fades in from transparent to semi-opaque as user scrolls
   const japanFillOpacity = useTransform(scrollYProgress, [0, 0.4], [0, 0.55])
@@ -43,7 +42,47 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
 
   const parallaxMountainY = shouldReduceMotion ? 0 : mountainY
   const parallaxJapanY = shouldReduceMotion ? 0 : japanY
-  const parallaxPolaroidX = shouldReduceMotion ? 0 : polaroidX
+  
+
+  // Lightweight RAF-driven CSS variable updater for polaroid strip to reduce
+  // framer-motion MotionValue churn on high-frequency scroll updates.
+  useEffect(() => {
+    const el = heroRef.current
+    if (!el) return
+    if (shouldReduceMotion) {
+      el.style.setProperty('--parallax-polaroid-x', '0px')
+      return
+    }
+
+    let ticking = false
+
+    const update = () => {
+      ticking = false
+      const rect = el.getBoundingClientRect()
+      const winH = window.innerHeight || 1
+      // progress: 0 when hero top is at bottom of viewport, 1 when top at 0
+      const progress = Math.min(Math.max(0, 1 - rect.top / winH), 1)
+      const x = -viewportHeight * 0.4 * progress
+      el.style.setProperty('--parallax-polaroid-x', `${x}px`)
+    }
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(update)
+      }
+    }
+
+    // initial set
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', update)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', update)
+    }
+  }, [viewportHeight, shouldReduceMotion])
 
   const scrollToContacts = () => {
     if (lenisRef.current) {
@@ -69,6 +108,9 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
         <img
           src="/images/hero-mountains.jpg"
           alt="Misty Japanese mountains at dawn"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           className="h-full w-full object-cover"
           style={{ objectPosition: 'center 40%' }}
         />
@@ -115,6 +157,9 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
           alt=""
           className="h-full w-full object-cover"
           style={{ objectPosition: 'center 40%' }}
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
         />
         <div
           className="absolute inset-0"
@@ -129,21 +174,24 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
         <img
           src="/images/hero-kimono-figure.png"
           alt="Woman in floral kimono overlooking the valley"
+          loading="lazy"
+          fetchPriority="low"
+          decoding="async"
           className="h-full w-auto object-contain object-right-bottom"
           style={{ filter: 'drop-shadow(0 0 40px rgba(0,0,0,0.3))' }}
         />
       </div>
 
       {/* Polaroid Card Strip */}
-      <motion.div
+      <div
         className="absolute bottom-10 left-6 z-30 flex gap-4 md:bottom-10 md:left-10"
-        style={{ x: parallaxPolaroidX, willChange: 'transform' }}
+        style={{ transform: 'translateX(var(--parallax-polaroid-x))', willChange: 'transform' }}
         data-hero-plane="polaroids"
       >
         {polaroidData.map((card) => (
           <PolaroidCard key={card.caption} image={card.image} caption={card.caption} />
         ))}
-      </motion.div>
+      </div>
 
       {/* Floating Book Button */}
       <button
