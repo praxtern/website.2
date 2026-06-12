@@ -1,12 +1,27 @@
 import { useState } from 'react'
 
 export default function FrostedForm() {
-  const [submitted, setSubmitted] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
+    setStatus('loading')
+    const formData = new FormData(e.currentTarget)
+    formData.append('access_key', 'PASTE_YOUR_WEB3FORMS_KEY_HERE')
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      if (data.success) {
+        setStatus('success')
+      } else {
+        setStatus('error')
+      }
+    } catch {
+      setStatus('error')
+    }
   }
 
   return (
@@ -26,12 +41,14 @@ export default function FrostedForm() {
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+        <input type="hidden" name="subject" value="New Japan Tours Inquiry" />
         <div>
           <label className="mb-2 block font-sans text-[11px] font-medium uppercase tracking-widest text-mouse-gray">
             Your name
           </label>
           <input
             type="text"
+            name="name"
             placeholder="Enter your name"
             className="form-input-underline"
             required
@@ -44,6 +61,7 @@ export default function FrostedForm() {
           </label>
           <input
             type="tel"
+            name="phone"
             placeholder="+7 (999) 000-00-00"
             className="form-input-underline"
             required
@@ -56,6 +74,7 @@ export default function FrostedForm() {
           </label>
           <textarea
             rows={4}
+            name="message"
             placeholder="Your message..."
             className="form-input-underline resize-none"
           />
@@ -65,8 +84,14 @@ export default function FrostedForm() {
           type="submit"
           className="mt-2 w-full rounded-full bg-kimono-white py-4 font-sans text-sm font-medium uppercase tracking-[0.12em] text-mist-black transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-sakura-pink"
           data-cursor-expand
+          disabled={status === 'loading' || status === 'success'}
+          style={status === 'success' ? { backgroundColor: '#D4F87A', color: 'black' } : {}}
+          onClick={() => status === 'error' && setStatus('idle')}
         >
-          {submitted ? 'Sent!' : 'Send'}
+          {status === 'loading' && 'Sending...'}
+          {status === 'success' && 'Sent ✓'}
+          {status === 'error' && 'Try again'}
+          {status === 'idle' && 'Send'}
         </button>
       </form>
     </div>
