@@ -136,19 +136,22 @@ export default function HeroSection({ lenisRef }: HeroSectionProps) {
 
       {/* Polaroid Card Strip */}
       <motion.div
-        className="absolute bottom-10 left-6 z-30 flex gap-4 md:bottom-10 md:left-10"
+        className="absolute bottom-10 left-6 z-30 flex flex-col md:bottom-10 md:left-10"
         style={{ x: parallaxPolaroidX, willChange: 'transform' }}
         data-hero-plane="polaroids"
       >
-        {polaroidData.map((card) => (
-          <PolaroidCard key={card.caption} image={card.image} caption={card.caption} />
-        ))}
+        <p className="mb-3 font-sans text-[11px] uppercase tracking-[0.2em] text-white/40">10 days · 3 cities · curated</p>
+        <div className="flex gap-4">
+          {polaroidData.map((card) => (
+            <PolaroidCard key={card.caption} image={card.image} caption={card.caption} />
+          ))}
+        </div>
       </motion.div>
 
       {/* Floating Book Button */}
       <button
         onClick={scrollToContacts}
-        className="absolute bottom-[15%] right-[25%] z-50 hidden rounded-full px-12 py-4 font-sans text-sm font-medium uppercase tracking-[0.12em] text-mist-black transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 md:block"
+        className="absolute bottom-10 right-[18%] z-50 hidden rounded-full px-12 py-4 font-sans text-sm font-medium uppercase tracking-[0.12em] text-mist-black transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 md:block"
         style={{
           background: 'rgba(245, 232, 211, 0.9)',
           backdropFilter: 'blur(8px)',
